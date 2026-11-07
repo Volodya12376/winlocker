@@ -10,7 +10,7 @@ w = root.winfo_screenwidth()
 h = root.winfo_screenheight()
 
 root.geometry(f"{w}x{h}")
-root.configure(bg="black")
+root.configure(bg="red")
 
 def Quit():
     pass
