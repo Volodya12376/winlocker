@@ -13,7 +13,7 @@ BLUE = "#0000f4"
 GREEN = "#9cc9b5"
 ORANGE = "#fefefe"
 
-password = "1234"
+password = "ziD#^TafeOaRjI^9Z@aK"
 
 
 path = sys.argv[0]
